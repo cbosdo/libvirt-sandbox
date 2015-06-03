@@ -122,6 +122,11 @@ gboolean gvir_sandbox_config_add_network_strv(GVirSandboxConfig *config,
                                               GError **error);
 gboolean gvir_sandbox_config_has_networks(GVirSandboxConfig *config);
 
+void gvir_sandbox_config_add_disk(GVirSandboxConfig *config,
+                                  GVirSandboxConfigDisk *dsk);
+
+GList *gvir_sandbox_config_get_disks(GVirSandboxConfig *config);
+
 void gvir_sandbox_config_add_mount(GVirSandboxConfig *config,
                                    GVirSandboxConfigMount *mnt);
 GList *gvir_sandbox_config_get_mounts(GVirSandboxConfig *config);

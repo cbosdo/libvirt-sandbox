@@ -274,7 +274,6 @@ static void gvir_sandbox_config_finalize(GObject *object)
     g_list_foreach(priv->networks, (GFunc)g_object_unref, NULL);
     g_list_free(priv->networks);
 
-
     g_free(priv->name);
     g_free(priv->uuid);
     g_free(priv->root);
@@ -1137,6 +1136,41 @@ gboolean gvir_sandbox_config_has_networks(GVirSandboxConfig *config)
 {
     GVirSandboxConfigPrivate *priv = config->priv;
     return priv->networks ? TRUE : FALSE;
+}
+
+
+/**
+ * gvir_sandbox_config_add_disk:
+ * @config: (transfer none): the sandbox config
+ * @dsk: (transfer none): the disk configuration
+ *
+ * Adds a new custom disk to the sandbox
+ *
+ */
+void gvir_sandbox_config_add_disk(GVirSandboxConfig *config,
+                                   GVirSandboxConfigDisk *dsk)
+{
+    GVirSandboxConfigPrivate *priv = config->priv;
+
+    g_object_ref(dsk);
+
+    priv->disks = g_list_append(priv->disks, dsk);
+}
+
+
+/**
+ * gvir_sandbox_config_get_disks:
+ * @config: (transfer none): the sandbox config
+ *
+ * Retrieves the list of custom disks in the sandbox
+ *
+ * Returns: (transfer full) (element-type GVirSandboxConfigMount): the list of disks
+ */
+GList *gvir_sandbox_config_get_disks(GVirSandboxConfig *config)
+{
+    GVirSandboxConfigPrivate *priv = config->priv;
+    g_list_foreach(priv->disks, (GFunc)g_object_ref, NULL);
+    return g_list_copy(priv->disks);
 }
 
 
