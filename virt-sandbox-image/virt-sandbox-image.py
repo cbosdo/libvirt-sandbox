@@ -83,55 +83,6 @@ def debug(msg):
 def info(msg):
     sys.stdout.write(msg)
 
-def delete_template(name, destdir):
-    imageusage = {}
-    imageparent = {}
-    imagenames = {}
-    imagedirs = os.listdir(destdir)
-    for imagetagid in imagedirs:
-        indexfile = destdir + "/" + imagetagid + "/index.json"
-        if os.path.exists(indexfile):
-            with open(indexfile, "r") as f:
-                index = json.load(f)
-            imagenames[index["name"]] = imagetagid
-        jsonfile = destdir + "/" + imagetagid + "/template.json"
-        if os.path.exists(jsonfile):
-            with open(jsonfile, "r") as f:
-                template = json.load(f)
-
-            parent = template.get("parent", None)
-            if parent:
-                if parent not in imageusage:
-                    imageusage[parent] = []
-                imageusage[parent].append(imagetagid)
-                imageparent[imagetagid] = parent
-
-    if not name in imagenames:
-        raise ValueError(["Image %s does not exist locally" % name])
-
-    imagetagid = imagenames[name]
-    while imagetagid != None:
-        debug("Remove %s\n" %  imagetagid)
-        parent = imageparent.get(imagetagid, None)
-
-        indexfile = destdir + "/" + imagetagid + "/index.json"
-        if os.path.exists(indexfile):
-            os.remove(indexfile)
-        jsonfile = destdir + "/" + imagetagid + "/template.json"
-        if os.path.exists(jsonfile):
-            os.remove(jsonfile)
-        datafile = destdir + "/" + imagetagid + "/template.tar.gz"
-        if os.path.exists(datafile):
-            os.remove(datafile)
-        imagedir = destdir + "/" + imagetagid
-        os.rmdir(imagedir)
-
-        if parent:
-            if len(imageusage[parent]) != 1:
-                debug("Parent %s is shared\n" % parent)
-                parent = None
-        imagetagid = parent
-
 def download(args):
     try:
         dynamic_source_loader(args.source).download_template(name=args.name,
@@ -145,8 +96,11 @@ def download(args):
         print "Download Error %s" % str(e)
 
 def delete(args):
-    info("Deleting %s from %s\n" % (args.name, default_template_dir))
-    delete_template(args.name, default_template_dir)
+    try:
+        dynamic_source_loader(args.source).delete_template(name=args.name,
+                                                           imagepath=args.imagepath)
+    except Exception,e:
+        print "Delete Error %s", str(e)
 
 def create(args):
     try:
@@ -193,6 +147,9 @@ def gen_delete_args(subparser):
     parser = subparser.add_parser("delete",
                                    help=_("Delete template data"))
     requires_name(parser)
+    requires_source(parser)
+    parser.add_argument("imagepath",
+                        help=_("Path for image"))
     parser.set_defaults(func=delete)
 
 def gen_create_args(subparser):

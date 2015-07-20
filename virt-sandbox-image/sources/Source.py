@@ -15,4 +15,7 @@ class Source():
     def create_template(self,**args):
       pass
 
+    @abstractmethod
+    def delete_template(self,**args):
+      pass
 
