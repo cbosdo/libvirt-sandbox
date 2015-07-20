@@ -1,5 +1,5 @@
 #!/usr/bin/python -Es
-#
+# -*- coding: utf-8 -*-
 # Authors: Daniel P. Berrange <berrange@redhat.com>
 #          Eren Yagdiran <erenyagdiran@gmail.com>
 #
@@ -37,6 +37,34 @@ default_template_dir = "/var/lib/libvirt/templates"
 
 debug = True
 verbose = True
+
+sys.dont_write_bytecode = True
+
+
+##Hook mechanism starts##
+import __builtin__
+from sources.Source import Source
+__builtin__.hookHolder = {}
+def add_hook(driverName,clazz):
+    holder = __builtin__.hookHolder
+    if not issubclass(clazz,Source):
+        raise Exception("Loading %s failed. Make sure it is a subclass Of %s" %(clazz,Source))
+    holder[driverName] = clazz
+
+def init_from_name(name):
+    holder = __builtin__.hookHolder
+    return holder.get(name,None)
+
+__builtin__.add_hook = add_hook
+__builtin__.init_from_name = init_from_name
+from sources import *
+
+def dynamic_source_loader(name):
+    obj = init_from_name(name)
+    if obj == None:
+        raise IOError
+    return obj()
+##Hook mechanism ends
 
 gettext.bindtextdomain("libvirt-sandbox", "/usr/share/locale")
 gettext.textdomain("libvirt-sandbox")
