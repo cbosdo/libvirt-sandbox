@@ -11,3 +11,8 @@ class Source():
     def download_template(self,**args):
         pass
 
+    @abstractmethod
+    def create_template(self,**args):
+      pass
+
+
