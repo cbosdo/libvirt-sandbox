@@ -117,6 +117,26 @@ def check_driver(driver):
             raise ValueError("%s is not supported by Virt-sandbox" %driver)
         return True
 
+def run(args):
+    try:
+        check_driver(args.driver)
+        source = dynamic_source_loader(args.source)
+        diskfile,configfile = source.get_disk(name=args.name,path=args.imagepath)
+
+        format = "qcow2"
+        commandToRun = args.command
+        if commandToRun is None:
+            commandToRun = source.get_command(configfile)
+        cmd = ['virt-sandbox',
+               '-c',args.driver,
+               '-m','host-image:/=%s,format=%s' %(diskfile,format),
+               '--',
+               commandToRun]
+        subprocess.call(cmd)
+
+    except Exception,e:
+        print "Run Error %s" % str(e)
+
 def requires_name(parser):
     parser.add_argument("name",
                         help=_("name of the template"))
