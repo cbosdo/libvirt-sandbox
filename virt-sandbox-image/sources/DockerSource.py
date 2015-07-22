@@ -342,6 +342,15 @@ class DockerSource(Source):
                     parent = None
             imagetagid = parent
 
+    def get_disk(self,**args):
+        name = args['name']
+        destdir = args['path']
+        imageList = self.__get_image_list(name,destdir)
+        toplayer = imageList[0]
+        diskfile = destdir + "/" + toplayer + "/template.qcow2"
+        configfile = destdir + "/" + toplayer + "/template.json"
+        return (diskfile,configfile)
+
     def get_command(self,configfile):
         configParser = DockerConfParser(configfile)
         commandToRun = configParser.getRunCommand()

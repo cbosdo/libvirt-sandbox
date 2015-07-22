@@ -23,3 +23,5 @@ class Source():
     def get_command(self,**args):
       pass
 
+    def get_disk(self,**args):
+      pass
