@@ -127,11 +127,18 @@ def run(args):
         commandToRun = args.command
         if commandToRun is None:
             commandToRun = source.get_command(configfile)
+
         cmd = ['virt-sandbox',
                '-c',args.driver,
-               '-m','host-image:/=%s,format=%s' %(diskfile,format),
-               '--',
-               commandToRun]
+               '-m','host-image:/=%s,format=%s' %(diskfile,format)]
+
+        networkArgs = args.network
+        if networkArgs is not None:
+            cmd.append('-N')
+            cmd.append(networkArgs)
+
+        cmd.append('--')
+        cmd.append(commandToRun)
         subprocess.call(cmd)
 
     except Exception,e:
@@ -200,6 +207,8 @@ def gen_run_args(subparser):
                         help=_("path for image"))
     parser.add_argument("-c","--command",
                         help=_("Igniter command for image"))
+    parser.add_argument("-n","--network",
+                        help=_("Network params for running template"))
     parser.set_defaults(func=run)
 
 if __name__ == '__main__':
