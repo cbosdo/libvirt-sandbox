@@ -25,3 +25,6 @@ class Source():
 
     def get_disk(self,**args):
       pass
+
+    def get_volume(self,**args):
+      pass

@@ -119,6 +119,7 @@ def check_driver(driver):
 
 def run(args):
     try:
+        default_dir = "/var/lib/libvirt/storage"
         check_driver(args.driver)
         source = dynamic_source_loader(args.source)
         diskfile,configfile = source.get_disk(name=args.name,path=args.imagepath)
@@ -136,6 +137,26 @@ def run(args):
         if networkArgs is not None:
             cmd.append('-N')
             cmd.append(networkArgs)
+
+        allVolumes = source.get_volume(configfile)
+        volumeArgs = args.volume
+        if volumeArgs is not None:
+            allVolumes = allVolumes + volumeArgs
+        for volume in allVolumes:
+            volumeSplit = volume.split(":")
+            volumelen = len(volumeSplit)
+            if volumelen == 2:
+                hostPath = volumeSplit[0]
+                guestPath = volumeSplit[1]
+            elif volumelen == 1:
+                guestPath = volumeSplit[0]
+                hostPath = default_dir + guestPath
+                if not os.path.exists(hostPath):
+                    os.makedirs(hostPath)
+            else:
+                pass
+            cmd.append("--mount")
+            cmd.append("host-bind:%s=%s" %(guestPath,hostPath))
 
         cmd.append('--')
         cmd.append(commandToRun)
@@ -209,6 +230,8 @@ def gen_run_args(subparser):
                         help=_("Igniter command for image"))
     parser.add_argument("-n","--network",
                         help=_("Network params for running template"))
+    parser.add_argument("-v","--volume",action="append",
+                        help=_("Volume params for running template"))
     parser.set_defaults(func=run)
 
 if __name__ == '__main__':
