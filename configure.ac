@@ -129,6 +129,7 @@ AC_OUTPUT(Makefile
           libvirt-sandbox/Makefile
           libvirt-sandbox/tests/Makefile
           bin/Makefile
+          virt-sandbox-image/Makefile
           examples/Makefile
           docs/Makefile
           docs/libvirt-sandbox/Makefile
