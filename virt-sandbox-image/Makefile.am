@@ -1,23 +1,14 @@
-POD_FILES = \
-	virt-sandbox-image.pod \
-	$(NULL)
-EXTRA_DIST = $(POD_FILES)
 
-man1_MANS = \
-	virt-sandbox-image.1 \
-	$(NULL)
-
-POD2MAN = pod2man -c "Virt-Sanbox Image Tool" -r "$(PACKAGE)-$(VERSION)"
-
-virt-sandbox-image.1: virt-sandbox-image.pod Makefile
-	$(AM_V_GEN)$(POD2MAN) $< $(srcdir)/$@
-
-CLEANFILES = $(man1_MANS)
-
-virt_sandbox_image_SOURCES = virt-sandbox-image.py
+EXTRA_DIST = \
+	virt-sandbox-image.py \
+	sources
 
 install-data-local:
-		cp $(srcdir)/virt-sandbox-image.py $(DESTDIR)/virt-sandbox-image.py
+	$(mkinstalldirs) $(DESTDIR)/$(pkgpythondir)/sources
+	$(INSTALL) -m 0755 $(srcdir)/virt-sandbox-image.py $(DESTDIR)$(pkgpythondir)
+	$(INSTALL) -m 0644 $(srcdir)/sources/__init__.py $(DESTDIR)$(pkgpythondir)/sources
+	$(INSTALL) -m 0644 $(srcdir)/sources/Source.py $(DESTDIR)$(pkgpythondir)/sources
+	$(INSTALL) -m 0644 $(srcdir)/sources/DockerSource.py $(DESTDIR)$(pkgpythondir)/sources
 
 uninstall-local:
-		rm -f $(DESTDIR)/virt-sandbox-image.py
+	rm -f $(DESTDIR)$(pkgpythondir)
